@@ -67,6 +67,7 @@ namespace proj.Controllers
             }
         }
 
+
         [HttpDelete("{id:int}/delete")]
         public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
