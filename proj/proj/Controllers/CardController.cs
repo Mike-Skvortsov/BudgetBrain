@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BL.Services;
 using Entities.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using proj.Models;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace proj.Controllers
 {
     [ApiController]
     [Route("card")]
+    [Authorize]
     public class CardController : ControllerBase
     {
         private readonly ICardService _cardService;

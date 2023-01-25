@@ -1,6 +1,8 @@
-﻿using Autofac;
+﻿using Auth.Common;
+using Autofac;
 using BL.Services;
 using DataAccess;
+using Microsoft.Extensions.Options;
 
 namespace BL
 {
@@ -12,6 +14,7 @@ namespace BL
             builder.RegisterType<UserService>().As<IUserService>();
             builder.RegisterType<CardService>().As<ICardService>();
             builder.RegisterType<OperationService>().As<IOperationService>();
-        }
-    }
+			//builder.RegisterType<AuthOptions>().As<IOptions<AuthOptions>>();
+		}
+	}
 }

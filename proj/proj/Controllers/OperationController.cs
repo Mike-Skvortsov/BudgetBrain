@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BL.Services;
 using Entities.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using proj.Models;
 using System.Threading.Tasks;
@@ -10,7 +11,8 @@ namespace proj.Controllers
     
     [ApiController]
     [Route("operation")]
-    public class OperationController : ControllerBase
+	[Authorize]
+	public class OperationController : ControllerBase
     {
         private readonly IOperationService _operationService;
         private readonly ICardService _cardService;

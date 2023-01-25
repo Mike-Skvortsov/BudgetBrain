@@ -3,6 +3,8 @@ using Autofac;
 using BL;
 using DataAccess;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using proj.MappingProfiles;
+using System;
 
 namespace proj
 {
@@ -26,10 +29,6 @@ namespace proj
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-
-			var authOptionsConfiguration = Configuration.GetSection("Auth");
-			services.Configure<AuthOptions>(authOptionsConfiguration);
-
 			services.AddAutoMapper(x => x.AddProfile(new PresentationLayerMappingProfile()));
 			services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DB")));
 			services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
@@ -38,12 +37,34 @@ namespace proj
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "proj", Version = "v1" });
 			});
 
-			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-				.AddCookie(options => //CookieAuthenticationOptions
-				{
-					options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-				});
-			services.AddControllersWithViews();
+			services.AddOptions<AuthOptions>().Bind(Configuration.GetSection("Auth"));
+			var authOptionsConfiguration = Configuration.GetSection("Auth").Get<AuthOptions>();
+
+			if (authOptionsConfiguration == null || string.IsNullOrEmpty(authOptionsConfiguration.Secret))
+			{
+				authOptionsConfiguration.Secret = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "defaultValue";
+			}
+
+
+			services.AddSingleton(authOptionsConfiguration);
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+		.AddJwtBearer(options =>
+		{
+
+			options.RequireHttpsMetadata = false;
+			options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidIssuer = authOptionsConfiguration.Issuer,
+
+				ValidateAudience = true,
+				ValidAudience = authOptionsConfiguration.Audience,
+				ValidateLifetime = true,
+
+				IssuerSigningKey = authOptionsConfiguration.GetSynnetricSecurityKey(),
+				ValidateIssuerSigningKey = true,
+			};
+		});
 
 			services.AddCors(options =>
 			{

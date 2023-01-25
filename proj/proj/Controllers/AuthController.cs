@@ -18,12 +18,12 @@ namespace proj.Controllers
 	public class AuthController : ControllerBase
 	{
 		private readonly IUserService _userService;
-		private readonly IOptions<AuthOptions> authOptions;
+		private readonly IOptions<AuthOptions> authOptionsConfiguration;
 
-		public AuthController(IUserService userService, IOptions<AuthOptions> authOptions)
+		public AuthController(IUserService userService, IOptions<AuthOptions> authOptionsConfiguration)
 		{
 			this._userService = userService;
-			this.authOptions = authOptions;
+			this.authOptionsConfiguration = authOptionsConfiguration;
 		}
 		[Route("login")]
 		[HttpPost]
@@ -44,10 +44,10 @@ namespace proj.Controllers
 
 		private string GenerateJWT(User user)
 		{
-			var authParams = authOptions.Value;
+			var authParams = authOptionsConfiguration.Value;
 
 			var securityKey = authParams.GetSynnetricSecurityKey();
-			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
 
 			var claims = new List<Claim>()
 			{
