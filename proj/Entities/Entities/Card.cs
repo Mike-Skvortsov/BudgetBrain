@@ -6,6 +6,7 @@ namespace Entities.Entities
     public class Card : BaseEntity
     {
         public string NumberCard { get; set; }
+        public string CardName { get; set; }
         public decimal CardAmount { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }

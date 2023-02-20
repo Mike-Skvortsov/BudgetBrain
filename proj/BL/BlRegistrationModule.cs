@@ -14,7 +14,6 @@ namespace BL
             builder.RegisterType<UserService>().As<IUserService>();
             builder.RegisterType<CardService>().As<ICardService>();
             builder.RegisterType<OperationService>().As<IOperationService>();
-			//builder.RegisterType<AuthOptions>().As<IOptions<AuthOptions>>();
 		}
 	}
 }

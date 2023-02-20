@@ -10,7 +10,8 @@ namespace DataAccess.Repositories
     public interface ICardRepository
     {
         Task<ICollection<Card>> GetAllAsync();
-        Task<Card> GetByIdAsync(int id);
+        Task<ICollection<Card>> GetByUserIdAsync(int userId);
+		Task<Card> GetByIdAsync(int id, int userId);
         Task AddAsync(Card car);
         Task UpdateAsync(Card car);
         Task DeleteAsync(Card car);

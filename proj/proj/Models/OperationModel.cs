@@ -1,14 +1,15 @@
 ﻿using Entities.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
 
 namespace proj.Models
 {
     public class OperationModel
     {
         public string Name { get; set; }
-        public decimal Sum { get; set; }
+		public string Category { get; set; }
+		public decimal Sum { get; set; }
         public OperationType Type { get; set; }
-        [ForeignKey("Card")]
-        public int CardId { get; set; }
-    }
+        public DateTime CreatedAt { get; set; }
+
+	}
 }

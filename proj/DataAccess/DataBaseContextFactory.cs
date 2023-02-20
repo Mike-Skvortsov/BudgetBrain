@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -13,9 +8,8 @@ namespace DataAccess
         public DataBaseContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<DataBaseContext>();
-            optionsBuilder.UseSqlServer("Data Source =.; Initial Catalog = СostСontrol; Integrated Security = True");
-
-            return new DataBaseContext(optionsBuilder.Options);
-        }
+            optionsBuilder.UseSqlServer("Server=tcp:budgetbrain.database.windows.net,1433;Initial Catalog=budgetBrainSQLDatabase;Persist Security Info=False;User ID=MikeSKV;Password=#qwertyS;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60;");
+			return new DataBaseContext(optionsBuilder.Options);
+		}
     }
 }

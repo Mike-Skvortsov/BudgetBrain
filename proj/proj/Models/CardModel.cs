@@ -8,7 +8,6 @@ namespace proj.Models
     {
         public string NumberCard { get; set; }
         public decimal CardAmount { get; set; }
-        [ForeignKey("User")]
-        public int UserId { get; set; }
+        public string CardName { get; set; }
     }
 }

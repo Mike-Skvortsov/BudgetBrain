@@ -11,10 +11,11 @@ namespace BL.Services
     public interface ICardService
     {
         Task<ICollection<Card>> GetAllAsync();
-        Task<Card> GetByIdAsync(int id);
+        Task<ICollection<Card>> GetByUserIdAsync(int userId);
+		Task<Card> GetByIdAsync(int id, int userId);
         Task AddAsync(Card card);
         Task UpdateAsync(Card card);
-        Task<bool> TryUpdateAsync(int id, Card card);
+        Task<bool> TryUpdateAsync(int id, Card card, int userId);
         Task DeleteAsync(Card card);
     }
 }

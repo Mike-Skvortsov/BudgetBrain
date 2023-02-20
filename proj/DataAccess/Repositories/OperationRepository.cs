@@ -19,7 +19,7 @@ namespace DataAccess.Repositories
             return await this._context.Operations.Include(x => x.Card).ToListAsync();
         }
 
-        public async Task<Operation> GetByIdAsync(int id)
+        public async Task<Operation> GetByIdAsync(int id, int userId)
         {
             return await this._context.Operations.Include(x => x.Card).FirstOrDefaultAsync(x => x.Id == id);
         }

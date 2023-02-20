@@ -2,7 +2,7 @@
 
 namespace proj.Models
 {
-	public class Login
+	public class UserLoginRequest
 	{
 		[Required]
 		[EmailAddress]

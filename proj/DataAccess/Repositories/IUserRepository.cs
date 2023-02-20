@@ -9,7 +9,7 @@ namespace DataAccess.Repositories
 {
     public interface IUserRepository
     {
-        Task<ICollection<User>> GetAllAsync();
+		Task<ICollection<User>> GetAllAsync();
         Task<User> GetByIdAsync(int id);
         Task<User> GetUserByEmailAsync(string email);
         Task AddAsync(User user);

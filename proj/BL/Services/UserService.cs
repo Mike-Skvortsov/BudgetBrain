@@ -19,11 +19,18 @@ namespace BL.Services
             this._repository = repository;
         }
 
-        public Task<ICollection<User>> GetAllAsync()
+		//public  Task SaveTimeVerified(User user)
+  //      {
+		//	return this._repository.SaveTimeVerified(user);
+		//}
+
+		public Task<ICollection<User>> GetAllAsync()
         {
             var userFromRepository = this._repository.GetAllAsync();
             return userFromRepository;
         }
+		//public async Task<User> GetByToken(string token)
+		//	=> await _repository.GetByToken(token);
 
 		public async Task<User> GetByIdAsync(int id) 
             => await _repository.GetByIdAsync(id);
@@ -31,9 +38,11 @@ namespace BL.Services
 			=> await _repository.GetUserByEmailAsync(email);
 
 		public Task AddAsync(User user)
-            => this._repository.AddAsync(user);
+		{
+			return this._repository.AddAsync(user);
+		}
 
-        public Task UpdateAsync(User user)
+		public Task UpdateAsync(User user)
             => this._repository.UpdateAsync(user);
 
         public async Task<bool> TryUpdateAsync(User user, int id)
@@ -46,10 +55,8 @@ namespace BL.Services
                 userToUpdate.LastName = user.LastName;
 				userToUpdate.Email = user.Email;
 				userToUpdate.Password = user.Password;
-				userToUpdate.Id = user.Id;
 
-
-                await this._repository.UpdateAsync(userToUpdate);
+				await this._repository.UpdateAsync(userToUpdate);
 
                 return true;
             }

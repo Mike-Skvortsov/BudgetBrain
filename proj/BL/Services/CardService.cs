@@ -1,6 +1,7 @@
 ﻿using DataAccess.Repositories;
 using Entities.Entities;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BL.Services
@@ -14,15 +15,20 @@ namespace BL.Services
             this._repository = repository;
         }
 
-        public Task<ICollection<Card>> GetAllAsync()
+        public async Task<ICollection<Card>> GetAllAsync()
         {
-            var cardFromRepository = this._repository.GetAllAsync();
-            return cardFromRepository;
-        }
+            var cardFromRepository = await this._repository.GetAllAsync();
+			return cardFromRepository.ToList();
+		}
+		public async Task<ICollection<Card>> GetByUserIdAsync(int userId)
+		{
+			var cardFromRepository = await this._repository.GetByUserIdAsync(userId);
+			return cardFromRepository.ToList();
+		}
 
-        public async Task<Card> GetByIdAsync(int id)
+		public async Task<Card> GetByIdAsync(int id, int userId)
         {
-            return await this._repository.GetByIdAsync(id);
+            return await this._repository.GetByIdAsync(id, userId);
         }
 
         public Task AddAsync(Card card)
@@ -31,16 +37,15 @@ namespace BL.Services
         public Task UpdateAsync(Card card)
             => this._repository.UpdateAsync(card);
 
-        public async Task<bool> TryUpdateAsync(int id, Card card)
+        public async Task<bool> TryUpdateAsync(int id, Card card, int userId)
         {
-            var cardToUpdate = await this._repository.GetByIdAsync(id);
+            var cardToUpdate = await this._repository.GetByIdAsync(id, userId);
             if (cardToUpdate != null)
             {
                 cardToUpdate.User = card.User;
                 cardToUpdate.NumberCard = card.NumberCard;
                 cardToUpdate.CardAmount = card.CardAmount;
-                cardToUpdate.Id = card.Id;
-                
+                cardToUpdate.CardName = card.CardName;
 
                 await this._repository.UpdateAsync(cardToUpdate);
 

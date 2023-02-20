@@ -1,6 +1,7 @@
 ﻿using Entities.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
@@ -16,20 +17,22 @@ namespace DataAccess.Repositories
 
         public async Task<ICollection<Card>> GetAllAsync()
         {
-            return await this._context.Cards.Include(x => x.Operations).ToListAsync();
+            return await this._context.Cards.Include(x => x.Operations).OrderBy(x => x.CreatedAt).ToListAsync();
         }
-
-        public async Task<Card> GetByIdAsync(int id)
+        public async Task<Card> GetByIdAsync(int id, int userId)
         {
-            return await this._context.Cards.Include(x => x.Operations).FirstOrDefaultAsync(x => x.Id == id);
+            return await this._context.Cards.Include(x => x.Operations).Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
         }
-
-        public async Task AddAsync(Card card)
+		public async Task<ICollection<Card>> GetByUserIdAsync(int userId)
+		{
+			var cards = await _context.Cards.Include(x => x.Operations).Where(x => x.UserId == userId).ToListAsync();
+			return cards;
+		}
+		public async Task AddAsync(Card card)
         {
             await this._context.Cards.AddAsync(card);
             await this._context.SaveChangesAsync();
         }
-
         public async Task UpdateAsync(Card card)
         {
             this._context.Cards.Update(card);
