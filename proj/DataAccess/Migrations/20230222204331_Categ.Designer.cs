@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20230206103517_true")]
-    partial class @true
+    [Migration("20230222204331_Categ")]
+    partial class Categ
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,6 +31,12 @@ namespace DataAccess.Migrations
                     b.Property<decimal>("CardAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("CardName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -42,9 +48,50 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ColorId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Cards", "dbo");
+                });
+
+            modelBuilder.Entity("Entities.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeCategory")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories", "dbo");
+                });
+
+            modelBuilder.Entity("Entities.Entities.ColorCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ColorCards");
                 });
 
             modelBuilder.Entity("Entities.Entities.Operation", b =>
@@ -57,8 +104,8 @@ namespace DataAccess.Migrations
                     b.Property<int>("CardId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -75,6 +122,8 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CardId");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Operations", "dbo");
                 });
@@ -108,11 +157,19 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Entities.Entities.Card", b =>
                 {
+                    b.HasOne("Entities.Entities.ColorCard", "ColorCard")
+                        .WithMany("Cards")
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Entities.Entities.User", "User")
                         .WithMany("Cards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ColorCard");
 
                     b.Navigation("User");
                 });
@@ -125,12 +182,30 @@ namespace DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Entities.Entities.Category", "Category")
+                        .WithMany("Operations")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Card");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Entities.Entities.Card", b =>
                 {
                     b.Navigation("Operations");
+                });
+
+            modelBuilder.Entity("Entities.Entities.Category", b =>
+                {
+                    b.Navigation("Operations");
+                });
+
+            modelBuilder.Entity("Entities.Entities.ColorCard", b =>
+                {
+                    b.Navigation("Cards");
                 });
 
             modelBuilder.Entity("Entities.Entities.User", b =>

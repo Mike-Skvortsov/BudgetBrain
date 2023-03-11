@@ -1,4 +1,5 @@
 ﻿using Entities.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace BL.Services
 {
     public interface IUserService
     {
-        Task<ICollection<User>> GetAllAsync();
+		Task<string> SavePhotoAsync(int userId, byte[] photo);
+		Task<ICollection<User>> GetAllAsync();
         Task<User> GetByIdAsync(int id);
         Task<User> GetUserByEmailAsync(string email);
         Task AddAsync(User user);

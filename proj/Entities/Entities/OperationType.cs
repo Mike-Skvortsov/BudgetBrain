@@ -2,7 +2,7 @@
 {
     public enum OperationType
     {
-        Enrollment = 1,
-        WritingOff = 2
+        Income = 1,
+        Expenses = 2
     }
 }   

@@ -1,6 +1,4 @@
 ﻿using Entities.Entities;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace proj.Models
 {
@@ -9,5 +7,6 @@ namespace proj.Models
         public string NumberCard { get; set; }
         public decimal CardAmount { get; set; }
         public string CardName { get; set; }
+        public string ColorValue { get; set; }
     }
 }

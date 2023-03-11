@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20230218200005_CardName")]
-    partial class CardName
+    [Migration("20230220203820_color")]
+    partial class color
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -34,6 +34,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("CardName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -45,9 +48,26 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ColorId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Cards", "dbo");
+                });
+
+            modelBuilder.Entity("Entities.Entities.ColorCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ColorCards");
                 });
 
             modelBuilder.Entity("Entities.Entities.Operation", b =>
@@ -111,11 +131,19 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("Entities.Entities.Card", b =>
                 {
+                    b.HasOne("Entities.Entities.ColorCard", "ColorCard")
+                        .WithMany("Cards")
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Entities.Entities.User", "User")
                         .WithMany("Cards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ColorCard");
 
                     b.Navigation("User");
                 });
@@ -134,6 +162,11 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Entities.Entities.Card", b =>
                 {
                     b.Navigation("Operations");
+                });
+
+            modelBuilder.Entity("Entities.Entities.ColorCard", b =>
+                {
+                    b.Navigation("Cards");
                 });
 
             modelBuilder.Entity("Entities.Entities.User", b =>

@@ -1,5 +1,5 @@
-using Auth.Common;
 using Autofac;
+using Azure.Storage.Blobs;
 using BL;
 using BL.Services;
 using DataAccess;
@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -18,6 +17,9 @@ using proj.MappingProfiles;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Text;
+using Microsoft.Extensions.Azure;
+using Azure.Storage.Queues;
+using Azure.Core.Extensions;
 
 namespace proj
 {
@@ -32,7 +34,6 @@ namespace proj
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddLogging();
 			services.AddAutoMapper(x => x.AddProfile(new PresentationLayerMappingProfile()));
 			services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DB")));
 			services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
@@ -49,7 +50,6 @@ namespace proj
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "BudgetBrain", Version = "v1" });
 			});
 
-
 			services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -57,7 +57,7 @@ namespace proj
 			})
 			.AddJwtBearer(options =>
 			{
-				options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
 					ValidateIssuer = false,
 					//ValidIssuer = Configuration["Auth:Issuer"],
@@ -81,14 +81,19 @@ namespace proj
 						.AllowAnyHeader();
 					});
 			});
-			services.AddSingleton<IUserService, UserService>();
-			services.AddSingleton<ICardService, CardService>();
-			services.AddSingleton<IOperationService, OperationService>();
+
+			services.AddAzureClients(builder =>
+			{
+				builder.AddBlobServiceClient(Configuration["BlobStorageConnectionString:blob"]);
+				builder.AddQueueServiceClient(Configuration["BlobStorageConnectionString:queue"]);
+			});
 		}
+
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
 			builder.RegisterModule<BlRegistrationModule>();
 		}
+
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.UseSwagger();
@@ -96,14 +101,19 @@ namespace proj
 			{
 				c.SwaggerEndpoint("/swagger/v1/swagger.json", "BudgetBrain v1");
 			});
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
 
+			app.UseStaticFiles();
 			app.UseHttpsRedirection();
-			app.UseCors();
+
 			app.UseRouting();
+
+			app.UseCors();
+
 			app.UseAuthentication();
 			app.UseAuthorization();
 
@@ -113,4 +123,32 @@ namespace proj
 			});
 		}
 	}
+	public static class StartupExtensions
+	{
+		public static IAzureClientBuilder<BlobServiceClient, BlobClientOptions> AddBlobServiceClient(this AzureClientFactoryBuilder builder, string serviceUriOrConnectionString)
+		{
+			if (Uri.TryCreate(serviceUriOrConnectionString, UriKind.Absolute, out Uri serviceUri))
+			{
+				return builder.AddBlobServiceClient(serviceUri);
+			}
+			else
+			{
+				return builder.AddBlobServiceClient(serviceUriOrConnectionString);
+			}
+		}
+
+		public static IAzureClientBuilder<QueueServiceClient, QueueClientOptions> AddQueueServiceClient(this AzureClientFactoryBuilder builder, string serviceUriOrConnectionString)
+		{
+			if (Uri.TryCreate(serviceUriOrConnectionString, UriKind.Absolute, out Uri serviceUri))
+			{
+				return builder.AddQueueServiceClient(serviceUri);
+			}
+			else
+			{
+				return builder.AddQueueServiceClient(serviceUriOrConnectionString);
+			}
+		}
+
+	}
 }
+

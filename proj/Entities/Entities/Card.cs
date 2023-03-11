@@ -11,6 +11,9 @@ namespace Entities.Entities
         [ForeignKey("User")]
         public int UserId { get; set; }
         public virtual User User { get; set; }
-        public virtual List<Operation> Operations { get; private set; }
-    }
+        public virtual ICollection<Operation> Operations { get; set; }
+		[ForeignKey("Color")]
+		public int ColorId { get; set; }
+		public virtual ColorCard ColorCard { get; set; }
+	}
 }

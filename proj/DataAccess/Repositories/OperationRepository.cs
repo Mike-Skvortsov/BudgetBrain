@@ -1,6 +1,9 @@
 ﻿using Entities.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
@@ -13,18 +16,25 @@ namespace DataAccess.Repositories
         {
             this._context = context;
         }
-
-        public async Task<ICollection<Operation>> GetAllAsync()
+		public async Task<decimal> GetSumTypeOperation(OperationType operationType, int userId)
         {
-            return await this._context.Operations.Include(x => x.Card).ToListAsync();
-        }
+			DateTime lastMonth = DateTime.Now.AddMonths(-1);
+			return await this._context.Operations
+				.Where(x => x.Card.UserId == userId && x.Type == operationType && x.CreatedAt >= lastMonth)
+				.SumAsync(x => x.Sum);
+		}
 
-        public async Task<Operation> GetByIdAsync(int id, int userId)
+
+		public async Task<ICollection<Operation>> GetAllAsync(int userId)
         {
-            return await this._context.Operations.Include(x => x.Card).FirstOrDefaultAsync(x => x.Id == id);
+            return await this._context.Operations.Where(x => x.Card.UserId == userId).Include(x => x.Card).Include(x => x.Category).ToListAsync();
         }
+		public async Task<Operation> GetByIdAsync(int id)
+		{
+			return await this._context.Operations.Include(x => x.Category).Include(x => x.Card).FirstOrDefaultAsync(x => x.Id == id);
+		}
 
-        public async Task AddAsync(Operation operation)
+		public async Task AddAsync(Operation operation)
         {
             await this._context.Operations.AddAsync(operation);
             await this._context.SaveChangesAsync();

@@ -5,6 +5,13 @@
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/budgetbrain/databases/budgetBrainSQLDatabase",
       "type": "mssql.azure",
       "connectionId": "ConnectionStrings:DB"
+    },
+    "storage2": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/blobstorageimage1",
+      "type": "storage.azure",
+      "connectionId": "ConnectionStrings:BlobStorageConnectionString",
+      "dynamicId": null
     }
   }
 }

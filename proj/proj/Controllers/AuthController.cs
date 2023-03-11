@@ -4,6 +4,8 @@ using BL.Services;
 using DataAccess.Migrations;
 using Entities.Entities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +17,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace proj.Controllers
@@ -30,7 +33,7 @@ namespace proj.Controllers
 		{
 			this._mapper = mapper;
 			this._userService = userService;
-			_configuration = configuration;
+			this._configuration = configuration;
 		}
 
 		[HttpPost("registration")]
@@ -63,7 +66,6 @@ namespace proj.Controllers
 			if (result != null)
 			{
 				var token = GenerateJWT(result);
-
 				return Ok(new
 				{
 					accessToken = token,
@@ -71,7 +73,12 @@ namespace proj.Controllers
 			}
 			return BadRequest();
 		}
-
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+		[HttpGet("validate-token")]
+		public IActionResult ValidateToken()
+		{
+			return Ok();
+		}
 		private string GenerateJWT(Entities.Entities.User user)
 		{
 			var claims = new List<Claim>()

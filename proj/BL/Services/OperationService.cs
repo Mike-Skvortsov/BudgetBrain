@@ -15,23 +15,23 @@ namespace BL.Services
             this._repository = repository;
             _cardRepository = cardRepository;
         }
-        public Task<ICollection<Operation>> GetAllAsync()
-        {
-            var operationFromRepository = this._repository.GetAllAsync();
-            return operationFromRepository;
-        }
+		public async Task<ICollection<Operation>> GetAllAsync(int userId) 
+            => await this._repository.GetAllAsync(userId);
 
-        public Task<Operation> GetByIdAsync(int id, int userId)
-            => this._repository.GetByIdAsync(id, userId);
-
-        public async Task AddAsync(Operation operation, int userId, int cardId)
+		public Task<Operation> GetByIdAsync(int id)
+            => this._repository.GetByIdAsync(id);
+		public async Task<decimal> GetSumTypeOperation(OperationType operationType, int userId)
+		{
+			return await this._repository.GetSumTypeOperation(operationType, userId);
+		}
+		public async Task AddAsync(Operation operation, int userId, int cardId)
         {
             Card card = await _cardRepository.GetByIdAsync(cardId, userId);
-            if ((operation.Type == OperationType.Enrollment && operation.Sum >= 0) || operation.Type == OperationType.WritingOff && operation.Sum < 0)
+            if (operation.Type == OperationType.Income)
             {
                 card.CardAmount += operation.Sum;
             }
-            if (operation.Type == OperationType.WritingOff && operation.Sum >= 0)
+            if (operation.Type == OperationType.Expenses)
             {
                 card.CardAmount -= operation.Sum;
             }
@@ -44,36 +44,46 @@ namespace BL.Services
 
         public async Task<bool> TryUpdateAsync(int id, Operation operation)
         {
-            //var operationToUpdate = await this._repository.GetByIdAsync(id);
-            //var oldOperation = await _repository.GetByIdAsync(id);
-            //var card = await _cardRepository.GetByIdAsync(operation.CardId);
-            //if (card == null)
-            //{
-            //    return false;
-            //}
-            //card.CardAmount -= oldOperation.Sum;
-            //card.CardAmount += operation.Sum;
-            //if (operationToUpdate != null)
-            //{
-            //    operationToUpdate.Sum = operation.Sum;
-            //    operationToUpdate.Name = operation.Name;
-            //    operationToUpdate.Category = operation.Category;
-            //    operationToUpdate.CardId = operation.CardId;
-            //    operationToUpdate.Type = operation.Type;
-            //    await this._repository.UpdateAsync(operationToUpdate);
+            var operationToUpdate = await this._repository.GetByIdAsync(id);
+            var oldOperation = await _repository.GetByIdAsync(id);
+            var card = await _cardRepository.GetByIdAsync(operation.CardId, operation.Card.UserId);
+            if (oldOperation.Type == OperationType.Income)
+            {
+				card.CardAmount -= oldOperation.Sum;
+			}
+			else if (oldOperation.Type == OperationType.Expenses)
+			{
+				card.CardAmount += oldOperation.Sum;
+			}
+			if (operation.Type == OperationType.Income)
+			{
+                card.CardAmount += operation.Sum;
+			}
+			else if (operation.Type == OperationType.Expenses)
+			{
+				card.CardAmount -= operation.Sum;
+			}
+			if (operationToUpdate != null)
+            {
+				operationToUpdate.Sum = operation.Sum;
+                operationToUpdate.Name = operation.Name;
+                operationToUpdate.Category = operation.Category;
+				operationToUpdate.Type = operation.Type;
+                operationToUpdate.CreatedAt = operation.CreatedAt;
+                await this._repository.UpdateAsync(operationToUpdate);
 
-            //    return true;
-            //}
+                return true;
+            }
 
             return false;
         }
 
-        public async Task DeleteAsync(Operation operation)
+        public async Task DeleteAsync(Operation operation, int cardId, int userId)
         {
 
-            //var card = await _cardRepository.GetByIdAsync(operation.CardId);
-            //card.CardAmount -= operation.Sum;
-            //await this._repository.DeleteAsync(operation);
+            var card = await _cardRepository.GetByIdAsync(cardId, userId);
+            card.CardAmount -= operation.Sum;
+            await this._repository.DeleteAsync(operation);
         }
     }
 }

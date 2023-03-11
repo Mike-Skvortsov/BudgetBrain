@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 
 namespace Entities.Entities
@@ -9,6 +10,7 @@ namespace Entities.Entities
 		public string LastName { get; set; }
 		public string Email { get; set; }
 		public string Password { get; set; }
+		public string Photo { get; set; }
 		public virtual ICollection<Card> Cards { get; set; }
 	}
 }
